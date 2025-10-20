@@ -14,20 +14,22 @@
         
         body {
             background: linear-gradient(135deg, #8bc34a, #4caf50);
-            height: 100vh;
+            min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            overflow: hidden;
+            overflow-x: hidden;
             color: #3e2723;
+            padding: 20px;
         }
         
         .container {
             text-align: center;
             background-color: rgba(255, 255, 255, 0.95);
-            padding: 40px;
+            padding: 30px 20px;
             border-radius: 20px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            width: 100%;
             max-width: 500px;
             position: relative;
             transition: transform 0.3s;
@@ -36,8 +38,8 @@
         
         h1 {
             color: #5d4037;
-            margin-bottom: 20px;
-            font-size: 28px;
+            margin-bottom: 15px;
+            font-size: 24px;
             text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
         }
         
@@ -45,24 +47,26 @@
             color: #795548;
             font-style: italic;
             margin-bottom: 10px;
+            font-size: 16px;
         }
         
         p {
             color: #5d4037;
-            margin-bottom: 30px;
-            font-size: 18px;
+            margin-bottom: 25px;
+            font-size: 16px;
             line-height: 1.5;
         }
         
         .buttons {
             display: flex;
             justify-content: center;
-            gap: 20px;
-            margin-top: 30px;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 25px;
         }
         
         button {
-            padding: 15px 30px;
+            padding: 15px 25px;
             border: none;
             border-radius: 50px;
             font-size: 18px;
@@ -70,14 +74,16 @@
             cursor: pointer;
             transition: all 0.3s;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            min-width: 120px;
         }
         
         #yes-btn {
             background-color: #4caf50;
             color: white;
+            flex: 1;
         }
         
-        #yes-btn:hover {
+        #yes-btn:hover, #yes-btn:active {
             background-color: #388e3c;
             transform: scale(1.05);
         }
@@ -86,6 +92,7 @@
             background-color: #ff9800;
             color: white;
             position: relative;
+            flex: 1;
         }
         
         .hidden {
@@ -103,23 +110,24 @@
         }
         
         .monkey-elements {
-            position: absolute;
+            position: fixed;
             width: 100%;
             height: 100%;
             top: 0;
             left: 0;
             pointer-events: none;
+            z-index: -1;
         }
         
         .monkey {
             position: absolute;
-            font-size: 40px;
+            font-size: 30px;
             animation: swing 5s infinite ease-in-out;
         }
         
         .banana {
             position: absolute;
-            font-size: 30px;
+            font-size: 25px;
             animation: fall 8s infinite linear;
         }
         
@@ -136,8 +144,8 @@
         }
         
         .biology-icon {
-            font-size: 24px;
-            margin: 0 5px;
+            font-size: 20px;
+            margin: 0 3px;
         }
         
         .science-border {
@@ -151,6 +159,56 @@
             margin-top: 20px;
             font-size: 14px;
             color: #795548;
+        }
+        
+        /* Melhorias para mobile */
+        @media (max-width: 480px) {
+            .container {
+                padding: 25px 15px;
+            }
+            
+            h1 {
+                font-size: 22px;
+            }
+            
+            p {
+                font-size: 15px;
+            }
+            
+            button {
+                padding: 12px 20px;
+                font-size: 16px;
+                min-width: 110px;
+            }
+            
+            .buttons {
+                gap: 10px;
+            }
+        }
+        
+        /* Efeito de toque para mobile */
+        .touch-effect {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: rgba(255, 152, 0, 0.3);
+            pointer-events: none;
+            transform: translate(-50%, -50%);
+            animation: ripple 0.6s linear;
+        }
+        
+        @keyframes ripple {
+            0% {
+                width: 0px;
+                height: 0px;
+                opacity: 0.5;
+            }
+            100% {
+                width: 100px;
+                height: 100px;
+                opacity: 0;
+            }
         }
     </style>
 </head>
@@ -195,15 +253,21 @@
             const restartBtn = document.getElementById('restart-btn');
             const monkeyContainer = document.getElementById('monkey-container');
             
+            // Verificar se é um dispositivo móvel
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            
             // Criar elementos de macacos e bananas
             function createMonkeyElements() {
                 const monkeyEmojis = ['🐒', '🐵', '🦍'];
                 const otherEmojis = ['🍌', '🌿', '🔬'];
                 
-                for (let i = 0; i < 8; i++) {
+                // Menos elementos em mobile para melhor performance
+                const elementCount = isMobile ? 5 : 8;
+                
+                for (let i = 0; i < elementCount; i++) {
                     const element = document.createElement('div');
                     
-                    if (i < 5) {
+                    if (i < (isMobile ? 3 : 5)) {
                         element.classList.add('monkey');
                         element.innerHTML = monkeyEmojis[Math.floor(Math.random() * monkeyEmojis.length)];
                         element.style.left = Math.random() * 100 + 'vw';
@@ -222,8 +286,8 @@
             
             createMonkeyElements();
             
-            // Fazer o botão "NÃO" fugir do mouse
-            noBtn.addEventListener('mouseover', function() {
+            // Função para fazer o botão fugir (para desktop)
+            function moveButton() {
                 const containerRect = mainContainer.getBoundingClientRect();
                 const btnRect = noBtn.getBoundingClientRect();
                 
@@ -259,6 +323,35 @@
                 if (Math.random() > 0.7) {
                     noBtn.textContent = messages[Math.floor(Math.random() * messages.length)];
                 }
+            }
+            
+            // Para desktop - foge com o mouse
+            if (!isMobile) {
+                noBtn.addEventListener('mouseover', moveButton);
+            }
+            
+            // Para mobile - foge quando tentam tocar
+            noBtn.addEventListener('touchstart', function(e) {
+                e.preventDefault();
+                
+                // Criar efeito visual de toque
+                const touch = e.touches[0];
+                const touchEffect = document.createElement('div');
+                touchEffect.classList.add('touch-effect');
+                touchEffect.style.left = touch.clientX + 'px';
+                touchEffect.style.top = touch.clientY + 'px';
+                document.body.appendChild(touchEffect);
+                
+                // Remover o efeito após a animação
+                setTimeout(() => {
+                    touchEffect.remove();
+                }, 600);
+                
+                // Mover o botão
+                moveButton();
+                
+                // Evitar que o toque abra o menu contextual
+                return false;
             });
             
             // Quando o botão "NÃO" é clicado (se conseguir!)
@@ -271,8 +364,8 @@
                 mainContainer.classList.add('hidden');
                 successMessage.classList.remove('hidden');
                 
-                // Criar mais elementos de macacos
-                for (let i = 0; i < 10; i++) {
+                // Criar mais elementos de comemoração
+                for (let i = 0; i < (isMobile ? 5 : 10); i++) {
                     const element = document.createElement('div');
                     element.classList.add('banana');
                     element.innerHTML = '🎉';
